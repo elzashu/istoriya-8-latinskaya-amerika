@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Карточки по § 28. Латинская Америка</title>
+<style>
+:root{--bg:#fff;--fg:#1b1b1f;--mut:#5f6368;--card:#f3f4f7;--back:#e6edff;--bd:#d5d8de;--ac:#2557d6;--acfg:#fff;--ok:#1b7a43;--bad:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16171a;--fg:#ececf0;--mut:#a0a4ab;--card:#222328;--back:#1f2a46;--bd:#3a3c43;--ac:#7ea2ff;--acfg:#10131c;--ok:#7fd9a1;--bad:#ff9a92}}
+:root[data-theme="dark"]{--bg:#16171a;--fg:#ececf0;--mut:#a0a4ab;--card:#222328;--back:#1f2a46;--bd:#3a3c43;--ac:#7ea2ff;--acfg:#10131c;--ok:#7fd9a1;--bad:#ff9a92}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0}
+.sub{color:var(--mut);font-size:14px;margin:0 0 8px}
+.bar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin:6px 0 14px}
+.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s}
+.scene{perspective:1000px}
+.c3{position:relative;height:240px;transform-style:preserve-3d;transition:transform .45s;cursor:pointer;outline:none}
+.c3.f{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;border:1px solid var(--bd);border-radius:16px;background:var(--card);font-size:20px}
+.face.b{transform:rotateY(180deg);background:var(--back);font-size:26px;font-weight:600}
+.face.b.long{font-size:18px;font-weight:500}
+.tag{position:absolute;top:10px;left:14px;font-size:12px;color:var(--mut);font-weight:400}
+.hint{position:absolute;bottom:10px;font-size:12px;color:var(--mut);font-weight:400}
+button{font:inherit;padding:10px 16px;border-radius:10px;border:1px solid var(--ac);background:var(--ac);color:var(--acfg);cursor:pointer;margin:12px 8px 0 0}
+button.sec{background:transparent;color:var(--ac)}
+button.ok{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+button.no{background:var(--bad);border-color:var(--bad);color:var(--bg)}
+.hide{display:none}
+textarea{width:100%;box-sizing:border-box;min-height:200px;font:14px/1.4 inherit;padding:12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--fg)}
+details{margin-top:18px}
+summary{cursor:pointer;color:var(--ac)}
+li{margin:0 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Карточки по § 28. Латинская Америка</h1>
+<p class="sub">Карточки идут в порядке параграфа: отвечая по очереди, вы повторяете весь § 28. Прочитайте вопрос, ответьте про себя и переверните карточку.</p>
+<label class="sub"><input type="checkbox" id="shf"> перемешать порядок</label>
+
+<div id="deck">
+<div class="sub" id="prog"></div>
+<div class="bar"><i id="bar"></i></div>
+<div class="scene">
+<div class="c3" id="c3" role="button" tabindex="0" aria-label="Перевернуть карточку">
+<div class="face"><span class="tag">Вопрос</span><span id="q"></span><span class="hint">нажмите, чтобы перевернуть</span></div>
+<div class="face b"><span class="tag">Ответ</span><span id="a"></span></div>
+</div>
+</div>
+<div id="btns" class="hide">
+<button class="ok" id="know">Знаю</button>
+<button class="no" id="dont">Ещё раз</button>
+</div>
+<button class="sec" id="flip">Перевернуть</button>
+</div>
+
+<div id="res" class="hide">
+<h1 id="score"></h1>
+<ul id="mist"></ul>
+<button id="redo" class="sec">Повторить незнакомые</button>
+<button id="again" class="sec">Начать заново</button>
+</div>
+
+<details>
+<summary>Карточки (формат: ответ=вопрос)</summary>
+<p class="sub">Одна строка – одна карточка. Если у ответа есть варианты, пишите их через «|», на обороте покажется первый. Можно править и добавлять свои.</p>
+<textarea id="ed"></textarea>
+<button id="ap">Применить и начать заново</button>
+</details>
+</div>
+
+<script>
+const DEFAULT = `Земли обеих Америк южнее США и острова Карибского моря=Что называют Латинской Америкой?
+Почти всё Испании, Бразилия Португалии=Кому принадлежали колонии Латинской Америки к началу XIX в.?
+Совет по делам Индий (на местах интенданты)=Кто обладал всей полнотой власти в испанских колониях?
+Креолы=Как называли потомков белых переселенцев, составлявших около 1/5 населения колоний и занимавших привилегированное положение?
+Латифундия=Как называется крупное помещичье владение?
+Пеоны=Как называли кабальных батраков?
+Гаучо=Как называли свободных крестьян-скотоводов?
+Испанцев стало слишком много на выгодных постах, они вытесняли креольскую знать=Почему реформы Испании вызвали недовольство креолов?
+Продукцию некуда было сбывать: Испания не могла купить всё и запрещала торговлю с другими странами, а налоги росли=Почему рост производства и финансовые реформы тоже вызвали недовольство?
+Образование США и республика на Гаити=Какие примеры освобождения вдохновляли латиноамериканцев?
+1804=В каком году на Гаити провозглашена республика, первое независимое государство Латинской Америки?
+Меры против эксплуатации индейцев креолами (например, возврат индейцам отнятых земель)=Какие меры Мадрида креолы тоже считали испанским деспотизмом?
+Наполеон=Кто в 1808 г. сместил испанского короля, посадив на трон своего брата Жозефа?
+Они не признали нового короля, а ослабевшие метрополии не могли им помешать=Почему после этого колонии начали борьбу за независимость?
+1810=В каком году началась Война за независимость испанских колоний?
+Ф. де Миранда и С. Боливар=Кто возглавил восстание в Венесуэле?
+Симон Боливар=Кто носит прозвище Освободитель и стал президентом Великой Колумбии?
+Конституции защищали только креолов, рабство не отменили (рабы шли за испанцев), а Испания после падения Наполеона собрала силы=Почему первый этап борьбы закончился поражением?
+1816=К какому году Испания восстановила власть над колониями и закончился первый этап войны?
+Давал свободу рабам и раздавал солдатам землю противников независимости=Что изменил Боливар на втором этапе войны?
+Великая Колумбия=Какое государство создал Боливар в 1821 г.?
+Хосе де Сан-Мартин=Кто освободил Чили, Перу и Аргентину?
+Креолов положение устраивало (самая богатая часть), главной силой были индейцы-крестьяне=Почему в Мексике движение развивалось «снизу»?
+Мигель Идальго=Какой священник возглавил народное движение в Мексике?
+Подавлено, но в 1821 г. независимость объявлена, старые отношения остались=Чем закончилось народное движение в Мексике?
+Педру I=Кто в 1822 г. провозгласил независимость Бразилии и стал императором?
+Мирно, без большой войны, и осталась монархией=Чем путь Бразилии к независимости отличался от других стран?
+Куба и Пуэрто-Рико=Какие земли удержала за собой Испания после войны?
+Панамский конгресс=Какая встреча 1826 г. должна была объединить республики, но не дала результата?
+Распалась на Колумбию, Эквадор и Венесуэлу=Что случилось с Великой Колумбией?
+Богатые креолы, положение основной массы народа осталось прежним=Кто выиграл от революции?
+Сырьевой придаток (каучук и кофе, серебро и медь, мясо и зерно)=Чем для Европы и США стали экономики независимых стран?
+Каудильо=Как называли вождя, во главе которого стоял клан сторонников?
+Каудильо соперничали друг с другом, это вело к мятежам и диктатурам=Почему борьба вождей вела к нестабильности?
+Санта-Ана=Какой мексиканский диктатор многократно приходил к власти в 1830–1850-е гг.?
+Высокий имущественный и образовательный ценз, многоступенчатые выборы=Что ограничивало избирательное право в новых республиках?
+1870-е гг.=К какому десятилетию в большинстве стран отменили рабство?
+Границы: почти каждая страна воевала с соседями=Какая проблема была очень острой в 1820–1830-е гг.?
+Навязывали выгодные им соглашения, часто силой оружия=Как Англия, Франция и США использовали слабость новых государств?
+Война пирожных=Как называлась война Франции с Мексикой 1838–1839 гг. из-за жалобы кондитера?
+Каудильо и кланы, мятежи и диктатуры, ценз, рабство, споры о границах, давление Запада=Вопрос 2 (стр. 202): назовите черты внутриполитического развития бывших колоний.
+Слабая экономика (сырьевой придаток), нестабильность без единства, прежнее общество (власть креолов, рабство)=Главный вопрос: почему свободу получили, а зависимость от Запада осталась?
+Синтез индейских и европейских традиций; самобытная цивилизация=Чем особенна культура Латинской Америки?`;
+
+const $ = id => document.getElementById(id);
+let order = [], i = 0, wrong = [], known = 0, flipped = false;
+
+function parse(t) {
+  return t.split('\n').map(l => l.trim()).filter(l => l.includes('=')).map(l => {
+    const k = l.indexOf('=');
+    return { a: l.slice(0, k).split('|')[0].trim(), q: l.slice(k + 1).trim() };
+  }).filter(o => o.a && o.q);
+}
+function shuffle(a) {
+  a = a.slice();
+  for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; }
+  return a;
+}
+function start(list) {
+  order = $('shf').checked ? shuffle(list) : list.slice(); i = 0; wrong = []; known = 0;
+  $('deck').classList.remove('hide'); $('res').classList.add('hide');
+  show();
+}
+function show() {
+  if (i >= order.length) return finish();
+  flipped = false;
+  $('c3').classList.remove('f');
+  $('btns').classList.add('hide'); $('flip').classList.remove('hide');
+  $('prog').textContent = 'Карточка ' + (i + 1) + ' из ' + order.length;
+  $('bar').style.width = (i / order.length * 100) + '%';
+  $('a').parentNode.classList.toggle('long', order[i].a.length > 40);
+  $('q').textContent = order[i].q; $('a').textContent = order[i].a;
+}
+function flip() {
+  if (flipped) return;
+  flipped = true;
+  $('c3').classList.add('f');
+  $('btns').classList.remove('hide'); $('flip').classList.add('hide');
+}
+function next(ok) {
+  if (ok) known++; else wrong.push(order[i]);
+  i++; show();
+}
+function finish() {
+  $('deck').classList.add('hide'); $('res').classList.remove('hide');
+  $('score').textContent = 'Знаю ' + known + ' из ' + order.length;
+  const ul = $('mist'); ul.innerHTML = '';
+  wrong.forEach(o => { const li = document.createElement('li'); li.textContent = o.q + ' – ' + o.a; ul.appendChild(li); });
+  $('redo').classList.toggle('hide', !wrong.length);
+}
+
+$('c3').onclick = flip;
+$('c3').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+$('flip').onclick = flip;
+$('know').onclick = () => next(true);
+$('dont').onclick = () => next(false);
+$('redo').onclick = () => start(wrong);
+$('again').onclick = () => start(parse($('ed').value));
+$('ap').onclick = () => start(parse($('ed').value));
+
+$('shf').onchange = () => start(parse($('ed').value));
+$('ed').value = DEFAULT;
+start(parse(DEFAULT));
+</script>
+</body>
+</html>
